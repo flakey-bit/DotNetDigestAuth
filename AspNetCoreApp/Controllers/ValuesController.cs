@@ -9,8 +9,7 @@ namespace AspNetCoreApp.Controllers
         // GET api/values
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Digest")]
-        public string Get()
-        {
+        public string Get() {
             return "Hello Core!";
         }
     }

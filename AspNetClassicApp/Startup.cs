@@ -1,5 +1,6 @@
 ﻿using System.Web.Http;
-using FlakeyBit.DigestAuthMiddleware.AspNetClassic;
+using FlakeyBit.DigestAuthentication.AspNetClassic;
+using FlakeyBit.DigestAuthentication.Implementation;
 using Microsoft.Owin;
 using Owin;
 
@@ -11,13 +12,13 @@ namespace AspNetClassicApp
     {
         public void Configuration(IAppBuilder app) {
             HttpConfiguration config = new HttpConfiguration();
-            config.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
-            );
+            config.Routes.MapHttpRoute(name: "DefaultApi",
+                                       routeTemplate: "api/{controller}/{id}",
+                                       defaults: new {
+                                           id = RouteParameter.Optional
+                                       });
 
-            app.Use<DigestAuthenticationMiddleware>();
+            app.Use<DigestAuthenticationMiddleware>(DigestAuthenticationConfiguration.Create("VerySecure", "test-realm", 30), new TrivialUsernameSecretProvider());
             app.UseWebApi(config);
         }
     }

@@ -8,36 +8,33 @@ using Microsoft.Extensions.Options;
 
 namespace FlakeyBit.DigestAuthentication.AspNetCore
 {
-    public class DigestAuthenticationHandler : AuthenticationHandler<DigestAuthenticationOptions>
+    internal class DigestAuthenticationHandler : AuthenticationHandler<DigestAuthenticationOptions>
     {
-        private readonly DigestAuthImplementation _digestAuth;
-
         public DigestAuthenticationHandler(IOptionsMonitor<DigestAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
             : base(options, logger, encoder, clock) {
-            _digestAuth = new DigestAuthImplementation(options.CurrentValue.Configuration);
+            
         }
 
-        protected override Task<AuthenticateResult> HandleAuthenticateAsync() {
+        protected override async Task<AuthenticateResult> HandleAuthenticateAsync() {
+            var digestAuth = new DigestAuthImplementation(Options.Configuration, Options.UsernameSecretProvider);
+
             if (!Request.Headers.TryGetValue(DigestAuthImplementation.AuthorizationHeaderName, out var headerValue)) {
-                Response.Headers[DigestAuthImplementation.AuthenticateHeaderName] = _digestAuth.BuildChallengeHeader();
-                return Task.FromResult(AuthenticateResult.NoResult());
+                Response.Headers[DigestAuthImplementation.AuthenticateHeaderName] = digestAuth.BuildChallengeHeader();
+                return AuthenticateResult.NoResult();
             }
 
-            if (!_digestAuth.ValidateChallange(headerValue, Request.Method, out var username)) {
-                Response.Headers[DigestAuthImplementation.AuthenticateHeaderName] = _digestAuth.BuildChallengeHeader();
-                return Task.FromResult(AuthenticateResult.NoResult());
+            string validatedUsername = await digestAuth.ValidateChallangeAsync(headerValue, Request.Method);
+
+            if (validatedUsername == null) {
+                Response.Headers[DigestAuthImplementation.AuthenticateHeaderName] = digestAuth.BuildChallengeHeader();
+                return AuthenticateResult.NoResult();
             }
 
-            var identity = new ClaimsIdentity(username);
-            identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, username));
+            var identity = new ClaimsIdentity(validatedUsername);
+            identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
             var principal = new ClaimsPrincipal(identity);
 
-            return Task.FromResult(
-                AuthenticateResult.Success(
-                    new AuthenticationTicket(
-                        principal,
-                        new AuthenticationProperties(),
-                        Scheme.Name)));
+            return AuthenticateResult.Success(new AuthenticationTicket(principal, new AuthenticationProperties(), Scheme.Name));
         }
     }
 }

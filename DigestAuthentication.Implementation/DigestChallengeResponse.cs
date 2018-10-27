@@ -45,8 +45,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
                     var key = matches[i].Groups["key"].Value;
                     var value = matches[i].Groups["value"].Value;
 
-                    if (value.StartsWith("\""))
-                    {
+                    if (value.StartsWith("\"")) {
                         value = value.Substring(1, value.Length - 2);
                     }
 
@@ -60,6 +59,20 @@ namespace FlakeyBit.DigestAuthentication.Implementation
                 var nonceCounter = parts["nc"];
                 var clientNonce = parts["cnonce"];
                 var responseValue = parts["response"];
+
+                foreach (var value in new[] {
+                    username,
+                    realm,
+                    nonce,
+                    uri,
+                    nonceCounter,
+                    clientNonce,
+                    responseValue
+                }) {
+                    if (string.IsNullOrWhiteSpace(value)) {
+                        return false;
+                    }
+                }
 
                 response = new DigestChallengeResponse(realm, uri, username, nonce, nonceCounter, clientNonce, responseValue);
                 return true;

@@ -157,9 +157,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\OpenController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="TrivialUsernameSecretProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web.config" />
@@ -180,6 +182,10 @@
     <ProjectReference Include="..\DigestAuthentication.AspNetClassic\DigestAuthentication.AspNetClassic.csproj">
       <Project>{B8015A72-5187-465C-B972-E3F1B8504CC5}</Project>
       <Name>DigestAuthentication.AspNetClassic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DigestAuthentication.Implementation\DigestAuthentication.Implementation.csproj">
+      <Project>{4D794C88-7694-40E1-8B6F-09DA97EFDA47}</Project>
+      <Name>DigestAuthentication.Implementation</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

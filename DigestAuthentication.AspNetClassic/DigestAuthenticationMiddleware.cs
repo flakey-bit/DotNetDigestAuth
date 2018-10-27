@@ -1,16 +1,21 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using FlakeyBit.DigestAuthentication.Implementation;
 using Microsoft.Owin;
+using Microsoft.Owin.Security.Infrastructure;
 
-namespace FlakeyBit.DigestAuthMiddleware.AspNetClassic
+namespace FlakeyBit.DigestAuthentication.AspNetClassic
 {
-    public class DigestAuthenticationMiddleware : OwinMiddleware
+    public class DigestAuthenticationMiddleware : AuthenticationMiddleware<DigestAuthenticationOptions>
     {
-        public DigestAuthenticationMiddleware(OwinMiddleware next) : base(next) {
+        private readonly DigestAuthenticationConfiguration _config;
+        private readonly IUsernameSecretProvider _usernameSecretProvider;
+
+        public DigestAuthenticationMiddleware(OwinMiddleware next, DigestAuthenticationConfiguration config, IUsernameSecretProvider usernameSecretProvider) : base(next, new DigestAuthenticationOptions()) {
+            _config = config;
+            _usernameSecretProvider = usernameSecretProvider;
         }
 
-        public override Task Invoke(IOwinContext context) {
-            throw new NotImplementedException();
+        protected override AuthenticationHandler<DigestAuthenticationOptions> CreateHandler() {
+            return new DigestAuthenticationHandler(_config, _usernameSecretProvider);
         }
     }
 }

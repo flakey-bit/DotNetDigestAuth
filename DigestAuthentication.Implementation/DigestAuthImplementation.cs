@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FlakeyBit.DigestAuthentication.Implementation
 {
@@ -14,16 +15,25 @@ namespace FlakeyBit.DigestAuthentication.Implementation
         private static string QopMode = "auth";
         private static string NonceTimestampFormat = "yyyy-MM-dd HH:mm:ss.ffffffZ";
         private readonly DigestAuthenticationConfiguration _config;
+        private readonly IUsernameSecretProvider _usernameSecretProvider;
 
-        public DigestAuthImplementation(DigestAuthenticationConfiguration config) {
+        public DigestAuthImplementation(DigestAuthenticationConfiguration config, IUsernameSecretProvider usernameSecretProvider) {
+            if (config == null) {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (usernameSecretProvider == null) {
+                throw new ArgumentNullException(nameof(usernameSecretProvider));
+            }
+
             _config = config;
+            _usernameSecretProvider = usernameSecretProvider;
         }
 
-        public string BuildChallengeHeader()
-        {
+        public string BuildChallengeHeader() {
             string nonce = CreateNonce(DateTime.UtcNow);
 
-            var parts = new(string Key, string Value)[] {
+            var parts = new (string Key, string Value)[] {
                 ("realm", _config.Realm),
                 ("nonce", nonce),
                 ("qop", QopMode)
@@ -32,38 +42,32 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             return "Digest " + String.Join(", ", parts.Select(pair => $"{pair.Key}=\"{pair.Value}\""));
         }
 
-        public bool ValidateChallange(string authorizationHeaderValue, string requestMethod, out string username)
-        {
-            username = null;
-
-            if (!DigestChallengeResponse.TryParse(authorizationHeaderValue, out var challengeResponse))
-            {
-                return false;
+        public async Task<string> ValidateChallangeAsync(string authorizationHeaderValue, string requestMethod) {
+            if (!DigestChallengeResponse.TryParse(authorizationHeaderValue, out var challengeResponse)) {
+                return null;
             }
 
-            if (!ValidateNonce(challengeResponse))
-            {
-                return false;
+            if (!ValidateNonce(challengeResponse)) {
+                return null;
             }
 
-            var expectedHash = GenerateExpectedHash(challengeResponse, requestMethod);
-
-            if (expectedHash == challengeResponse.Response)
-            {
-                username = challengeResponse.Username;
-                return true;
+            var secretForUsername = await _usernameSecretProvider.GetSecretForUsernameAsync(challengeResponse.Username);
+            if (secretForUsername == null) {
+                // Username not recognised
+                return null;
             }
 
+            var expectedHash = GenerateExpectedHash(challengeResponse, requestMethod, secretForUsername);
 
-            return false;
+            if (expectedHash == challengeResponse.Response) {
+                return challengeResponse.Username;
+            }
+
+            return null;
         }
 
-        private string GenerateExpectedHash(DigestChallengeResponse response, string requestMethod)
-        {
-            // FIXME: !!!
-            const string expectedSecret = "password";
-
-            var a1 = $"{response.Username}:{response.Realm}:{expectedSecret}";
+        private string GenerateExpectedHash(DigestChallengeResponse response, string requestMethod, string secretForUsername) {
+            var a1 = $"{response.Username}:{response.Realm}:{secretForUsername}";
             var a1Hash = a1.ToMD5Hash();
 
             var a2 = $"{requestMethod}:{response.Uri}";
@@ -72,8 +76,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             return $"{a1Hash}:{response.Nonce}:{response.NonceCounter}:{response.ClientNonce}:{QopMode}:{a2Hash}".ToMD5Hash();
         }
 
-        private string CreateNonce(DateTime timestamp)
-        {
+        private string CreateNonce(DateTime timestamp) {
             var builder = new StringBuilder();
             var timestampStr = timestamp.ToString(NonceTimestampFormat);
             builder.Append(timestampStr);
@@ -83,24 +86,19 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             return builder.ToString();
         }
 
-        private bool ValidateNonce(DigestChallengeResponse challengeResponse)
-        {
-            try
-            {
+        private bool ValidateNonce(DigestChallengeResponse challengeResponse) {
+            try {
                 var timestampStr = challengeResponse.Nonce.Substring(0, NonceTimestampFormat.Length);
                 var timestamp = DateTimeOffset.ParseExact(timestampStr, NonceTimestampFormat, CultureInfo.InvariantCulture);
 
                 var delta = timestamp - DateTime.UtcNow;
 
-                if (Math.Abs(delta.TotalSeconds) > _config.MaxNonceAgeSeconds)
-                {
+                if (Math.Abs(delta.TotalSeconds) > _config.MaxNonceAgeSeconds) {
                     return false;
                 }
 
                 return challengeResponse.Nonce == CreateNonce(timestamp.DateTime);
-            }
-            catch (Exception)
-            {
+            } catch (Exception) {
                 return false;
             }
         }
