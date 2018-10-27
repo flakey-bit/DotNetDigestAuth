@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <AssemblyName>FlakeyBit.DigestAuthentication.Implementation</AssemblyName>
+    <RootNamespace>FlakeyBit.DigestAuthentication.Implementation</RootNamespace>
+    <PackageId>FlakeyBit.DigestAuthentication.Implementation</PackageId>
+    <Authors>Eddie Stanley</Authors>
+    <Description>Common functionality for Digest authentication</Description>
+
+    <Copyright>Copyright (C) 2018 Eddie Stanley</Copyright>
+    <AssemblyTitle>FlakeyBit.DigestAuthentication.Implementation</AssemblyTitle>
+    <OutputType>Library</OutputType>
+    <Company>Flakey Bit</Company>
+    <PackageProjectUrl>https://github.com/flakey-bit/DotNetDigestAuth</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/flakey-bit/DotNetDigestAuth/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/flakey-bit/DotNetDigestAuth</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Digest Authentication Asp.NET</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Security.Cryptography.Algorithms">
+      <HintPath>..\..\..\..\Program Files\dotnet\shared\Microsoft.NETCore.App\1.1.2\System.Security.Cryptography.Algorithms.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
