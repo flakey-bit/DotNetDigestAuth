@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <AssemblyName>FlakeyBit.DigestAuthentication.Implementation</AssemblyName>
+    <RootNamespace>FlakeyBit.DigestAuthentication.Implementation</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Security.Cryptography.Algorithms">
+      <HintPath>..\..\..\..\Program Files\dotnet\shared\Microsoft.NETCore.App\1.1.2\System.Security.Cryptography.Algorithms.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
