@@ -3,17 +3,10 @@ Implementation of Digest Authentication for ASP.NET Core (AuthenticationHandler)
 
 Supports: ASP.NET running on .NET Framework 4.6.1+ or ASP.NET Core running on .NET Standard 2.0+ 
 
-## Usage in ASP.NET Core:
+## General:
+- You'll need to reference the NuGet package & namespace `FlakeyBit.DigestAuthentication.Implementation` - this contains the core implementation of the Digest authentication as well as some interfaces/classes for configuring things.
 
-- You'll want to reference the NuGet package `FlakeyBit.DigestAuthentication.AspNetCore`.
-- You'll need both of the following references:
-
-```C#
-using FlakeyBit.DigestAuthentication.AspNetCore;
-using FlakeyBit.DigestAuthentication.Implementation;
-```
-
-Then, you'll need to provide an implementation of IUsernameSecretProvider - a trivial example is given below:
+- You'll need to provide an implementation of `IUsernameSecretProvider` - a trivial example is given below:
 
 ```C#
     /// <summary>
@@ -32,6 +25,23 @@ Then, you'll need to provide an implementation of IUsernameSecretProvider - a tr
     }
 ```
 
+### DigestAuthenticationConfiguration.Create:
+`DigestAuthenticationConfiguration.Create` is used to configure the digest authentication.
+
+* `ServerNonceSecret` is used when generating the challenges for the client. Keep this safe!
+* `Realm` describes (to the user) the computer or system being accessed
+* `MaxNonceAgeSeconds` is the number of seconds a given nonce is valid for. After that point, the client will be prompted to reauthenticate
+
+E.g.
+
+```C#
+DigestAuthenticationConfiguration.Create("SomeVerySecureServerNonceSecret", "SomeDescriptiveRealmName", 30)
+```
+
+## Usage in ASP.NET Core:
+
+- You'll want to reference the NuGet package & namespace `FlakeyBit.DigestAuthentication.AspNetCore`.
+
 In your web host startup:
 
 ```C#
@@ -39,16 +49,15 @@ public class Startup
 {
         public void ConfigureServices(IServiceCollection services) {
             services.AddAuthentication("Digest")
-                    .AddDigestAuthentication(DigestAuthenticationConfiguration.Create("VerySecret", "some-realm", 30),
+                    .AddDigestAuthentication(DigestAuthenticationConfiguration.Create("SomeVerySecureServerNonceSecret", "SomeDescriptiveRealmName", 30),
                                              new ExampleUsernameSecretProvider());
             services.AddMvc();
         }
 }
 ```
 
-(See DigestAuthenticationConfiguration.Create) for more details
+This will add a claim of type `DIGEST_AUTHENTICATION_NAME` (value will be the authenticated user name) to the principal on the request context. If you want to simply check for a claim of this type on a controller action, you can use the `[Authorize]` attribute as follows:
 
-Finally, add the `Authorize` attribute to your controller actions as follows:
 ```C#
     [Route("api/[controller]")]
     public class ValuesController : Controller
@@ -62,9 +71,43 @@ Finally, add the `Authorize` attribute to your controller actions as follows:
     }
 ```
 
-### DigestAuthenticationConfiguration.Create:
-`DigestAuthenticationConfiguration.Create` is used to configure the digest authentication.
+## Usage in ASP.NET Classic:
 
-* `ServerNonceSecret` is used when generating the challenges for the client. Keep this safe!
-* `Realm` describes (to the user) the computer or system being accessed
-* `MaxNonceAgeSeconds` is the number of seconds a given nonce is valid for. After that point, the client will be prompted to reauthenticate
+- You'll want to reference the NuGet package & namespace `FlakeyBit.DigestAuthentication.AspNetClassic`.
+
+In your web host startup:
+
+```C#
+    public class Startup
+    {
+        public void Configuration(IAppBuilder app) {
+            HttpConfiguration config = new HttpConfiguration();
+            config.Routes.MapHttpRoute(name: "DefaultApi",
+                                       routeTemplate: "api/{controller}/{id}",
+                                       defaults: new {
+                                           id = RouteParameter.Optional
+                                       });
+
+            app.Use<DigestAuthenticationMiddleware>(DigestAuthenticationConfiguration.Create("SomeVerySecureServerNonceSecret", "SomeDescriptiveRealmName", 30),
+                                                    new ExampleUsernameSecretProvider());
+            app.UseWebApi(config);
+        }
+    }
+```
+
+This will add a claim of type `DIGEST_AUTHENTICATION_NAME` (value will be the authenticated user name) to the principal on the request context. If you want to simply check for a claim of this type on a controller action, you can use the `DigestAuthorize` attribute
+
+```C#
+    public class ValuesController : ApiController
+    {
+        [DigestAuthorize]
+        public string Get() {
+            return "Protected info!";
+        }
+    }
+```
+
+If you want something more sophisticated than that, you'll need to roll your own filter.
+
+## More info:
+For working examples, check out the AspNetClassicApp & AspNetCoreApp projects in the solution.
