@@ -9,7 +9,8 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
         private readonly DigestAuthenticationConfiguration _config;
         private readonly IUsernameSecretProvider _usernameSecretProvider;
 
-        public DigestAuthenticationMiddleware(OwinMiddleware next, DigestAuthenticationConfiguration config, IUsernameSecretProvider usernameSecretProvider) : base(next, new DigestAuthenticationOptions()) {
+        public DigestAuthenticationMiddleware(OwinMiddleware next, DigestAuthenticationConfiguration config, IUsernameSecretProvider usernameSecretProvider) :
+            base(next, new DigestAuthenticationOptions()) {
             _config = config;
             _usernameSecretProvider = usernameSecretProvider;
         }

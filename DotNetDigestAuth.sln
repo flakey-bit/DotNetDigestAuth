@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigestAuthentication.AspNet
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigestAuthentication.AspNetClassic", "DigestAuthentication.AspNetClassic\DigestAuthentication.AspNetClassic.csproj", "{B8015A72-5187-465C-B972-E3F1B8504CC5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DemoSites", "DemoSites", "{A2F4FCB6-022F-4C2A-862A-B8A4B27CF257}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{88969BE6-E281-4047-A707-8DFE2DF981F5} = {A2F4FCB6-022F-4C2A-862A-B8A4B27CF257}
+		{0801BE55-58B8-4C52-B1ED-B3044DDCE6A0} = {A2F4FCB6-022F-4C2A-862A-B8A4B27CF257}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C372E17-94DC-42BF-A9A8-4D937DFB3491}

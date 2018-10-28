@@ -33,13 +33,22 @@ namespace FlakeyBit.DigestAuthentication.Implementation
         public string BuildChallengeHeader() {
             string nonce = CreateNonce(DateTime.UtcNow);
 
-            var parts = new (string Key, string Value)[] {
-                ("realm", _config.Realm),
-                ("nonce", nonce),
-                ("qop", QopMode)
+            var parts = new (string Key, string Value, bool ShouldQuote)[] {
+                ("realm", _config.Realm, true),
+                ("nonce", nonce, true),
+                ("qop", QopMode, true),
+                ("algorithm", "MD5", false)
             };
 
-            return "Digest " + String.Join(", ", parts.Select(pair => $"{pair.Key}=\"{pair.Value}\""));
+            return "Digest " + String.Join(", ", parts.Select(FormatChallengeHeaderComponent));
+        }
+
+        private string FormatChallengeHeaderComponent((string Key, string Value, bool ShouldQuote) component) {
+            if (component.ShouldQuote) {
+                return $"{component.Key}=\"{component.Value}\"";
+            }
+
+            return $"{component.Key}={component.Value}";
         }
 
         public async Task<string> ValidateChallangeAsync(string authorizationHeaderValue, string requestMethod) {

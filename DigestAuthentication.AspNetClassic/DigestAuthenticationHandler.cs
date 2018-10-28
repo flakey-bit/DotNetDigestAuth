@@ -23,23 +23,23 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
                 return new AuthenticationTicket(null, properties);
             }
 
-            string username = await _digestAuth.ValidateChallangeAsync(headerValue.FirstOrDefault(), Request.Method);
-            if (username == null) {
+            string validatedUsername = await _digestAuth.ValidateChallangeAsync(headerValue.FirstOrDefault(), Request.Method);
+            if (validatedUsername == null) {
                 return new AuthenticationTicket(null, properties);
             }
 
-            var identity = new ClaimsIdentity(username);
-            identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, username));
+            var identity = new ClaimsIdentity(validatedUsername);
+            identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
 
             return new AuthenticationTicket(identity, properties);
         }
 
-        protected override Task ApplyResponseChallengeAsync() {
-            if (Response.StatusCode == (int)HttpStatusCode.Unauthorized) {
+        protected override async Task ApplyResponseChallengeAsync() {
+            await base.ApplyResponseChallengeAsync();
+
+            if (Response.StatusCode == (int) HttpStatusCode.Unauthorized) {
                 Response.Headers[DigestAuthImplementation.AuthenticateHeaderName] = _digestAuth.BuildChallengeHeader();
             }
-
-            return base.ApplyResponseChallengeAsync();
         }
     }
 }
