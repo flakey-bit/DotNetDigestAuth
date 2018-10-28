@@ -63,6 +63,8 @@ Finally, add the `Authorize` attribute to your controller actions as follows:
 ```
 
 ### DigestAuthenticationConfiguration.Create:
-The values `VerySecret` (server nonce secret) and `SomeRealm` (realm name) should be replaced as appropriate. The server nonce secret
+`DigestAuthenticationConfiguration.Create` is used to configure the digest authentication.
 
-
+* `ServerNonceSecret` is used when generating the challenges for the client. Keep this safe!
+* `Realm` describes (to the user) the computer or system being accessed
+* `MaxNonceAgeSeconds` is the number of seconds a given nonce is valid for. After that point, the client will be prompted to reauthenticate
