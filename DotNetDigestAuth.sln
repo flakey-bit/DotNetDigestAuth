@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigestAuthentication.Implem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigestAuthentication.AspNetCore", "DigestAuthentication.AspNetCore\DigestAuthentication.AspNetCore.csproj", "{6D0AE479-F4CF-4745-B396-42BBCF98E421}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigestAuthentication.AspNetClassic", "DigestAuthentication.AspNetClassic\DigestAuthentication.AspNetClassic.csproj", "{B8015A72-5187-465C-B972-E3F1B8504CC5}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DemoSites", "DemoSites", "{A2F4FCB6-022F-4C2A-862A-B8A4B27CF257}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigestAuthentication.AspNetClassic", "DigestAuthentication.AspNetClassic\DigestAuthentication.AspNetClassic.csproj", "{E09262C4-E4BF-426D-A16D-D5E56DCC856C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +37,10 @@ Global
 		{6D0AE479-F4CF-4745-B396-42BBCF98E421}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D0AE479-F4CF-4745-B396-42BBCF98E421}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D0AE479-F4CF-4745-B396-42BBCF98E421}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B8015A72-5187-465C-B972-E3F1B8504CC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8015A72-5187-465C-B972-E3F1B8504CC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8015A72-5187-465C-B972-E3F1B8504CC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8015A72-5187-465C-B972-E3F1B8504CC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E09262C4-E4BF-426D-A16D-D5E56DCC856C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E09262C4-E4BF-426D-A16D-D5E56DCC856C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E09262C4-E4BF-426D-A16D-D5E56DCC856C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E09262C4-E4BF-426D-A16D-D5E56DCC856C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
