@@ -9,12 +9,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FlakeyBit.DigestAuthentication.AspNetCore" Version="2018.10.28.9" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.9" />
   </ItemGroup>
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DigestAuthentication.AspNetCore\DigestAuthentication.AspNetCore.csproj" />
   </ItemGroup>
 
 </Project>
