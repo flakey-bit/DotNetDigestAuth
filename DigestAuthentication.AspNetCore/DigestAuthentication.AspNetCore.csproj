@@ -20,9 +20,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FlakeyBit.DigestAuthentication.Implementation" Version="2018.10.28.2" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DigestAuthentication.Implementation\DigestAuthentication.Implementation.csproj" />
   </ItemGroup>
 
 </Project>

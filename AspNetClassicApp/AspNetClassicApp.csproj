@@ -44,9 +44,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FlakeyBit.DigestAuthentication.Implementation, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FlakeyBit.DigestAuthentication.Implementation.2018.10.28.2\lib\netstandard1.3\FlakeyBit.DigestAuthentication.Implementation.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.8.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
@@ -241,6 +238,10 @@
     <ProjectReference Include="..\DigestAuthentication.AspNetClassic\DigestAuthentication.AspNetClassic.csproj">
       <Project>{b8015a72-5187-465c-b972-e3f1b8504cc5}</Project>
       <Name>DigestAuthentication.AspNetClassic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DigestAuthentication.Implementation\DigestAuthentication.Implementation.csproj">
+      <Project>{4d794c88-7694-40e1-8b6f-09da97efda47}</Project>
+      <Name>DigestAuthentication.Implementation</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

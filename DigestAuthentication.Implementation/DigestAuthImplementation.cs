@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
     {
         public static string AuthenticateHeaderName = "WWW-Authenticate";
         public static string AuthorizationHeaderName = "Authorization";
+        public static string AuthenticationInfoHeaderName = "Authentication-Info";
         public static string DigestAuthenticationClaimName = "DIGEST_AUTHENTICATION_NAME";
 
         private static string QopMode = "auth";
@@ -30,12 +32,13 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             _usernameSecretProvider = usernameSecretProvider;
         }
 
+        public bool UseAuthenticationInfoHeader => _config.UseAuthenticationInfoHeader;
+
         public string BuildChallengeHeader() {
-            string nonce = CreateNonce(DateTime.UtcNow);
 
             var parts = new (string Key, string Value, bool ShouldQuote)[] {
                 ("realm", _config.Realm, true),
-                ("nonce", nonce, true),
+                ("nonce", CreateNonce(DateTime.UtcNow), true),
                 ("qop", QopMode, true),
                 ("algorithm", "MD5", false)
             };
@@ -43,7 +46,31 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             return "Digest " + String.Join(", ", parts.Select(FormatChallengeHeaderComponent));
         }
 
-        private string FormatChallengeHeaderComponent((string Key, string Value, bool ShouldQuote) component) {
+		public async Task<string> BuildAuthInfoHeader(DigestChallengeResponse response) {
+
+			var timestampStr = response.Nonce.Substring(0, NonceTimestampFormat.Length);
+			var timestamp = DateTimeOffset.ParseExact(timestampStr, NonceTimestampFormat, CultureInfo.InvariantCulture);
+
+			var delta = timestamp - DateTime.UtcNow;
+			var deltaSeconds = Math.Abs(delta.TotalSeconds);
+
+			List<ValueTuple<string, string, bool>> parts = new List<ValueTuple<string, string, bool>>()
+			{
+				("qop", QopMode, true),
+				("rspauth", await CreateRspAuth(response), true),
+				("cnonce", response.ClientNonce, true),
+				("nc", response.NonceCounter, false)
+			};
+
+			if (Math.Abs(deltaSeconds - _config.MaxNonceAgeSeconds) < _config.DeltaSecondsToNextNonce)
+			{
+				parts = parts.Prepend(("nextnonce", CreateNonce(DateTime.UtcNow), true)).ToList();
+			}
+
+			return String.Join(", ", parts.Select(FormatChallengeHeaderComponent));
+		}
+
+		private string FormatChallengeHeaderComponent((string Key, string Value, bool ShouldQuote) component) {
             if (component.ShouldQuote) {
                 return $"{component.Key}=\"{component.Value}\"";
             }
@@ -51,9 +78,12 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             return $"{component.Key}={component.Value}";
         }
 
-        public async Task<string> ValidateChallangeAsync(string authorizationHeaderValue, string requestMethod) {
-            if (!DigestChallengeResponse.TryParse(authorizationHeaderValue, out var challengeResponse)) {
-                return null;
+
+		
+        public async Task<string> ValidateChallangeAsync(DigestChallengeResponse challengeResponse, string requestMethod) {
+
+            if (challengeResponse == null) {
+	            return null;
             }
 
             if (!ValidateNonce(challengeResponse)) {
@@ -102,7 +132,8 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 
                 var delta = timestamp - DateTime.UtcNow;
 
-                if (Math.Abs(delta.TotalSeconds) > _config.MaxNonceAgeSeconds) {
+				if (Math.Abs(delta.TotalSeconds) > _config.MaxNonceAgeSeconds) {
+	                
                     return false;
                 }
 
@@ -110,6 +141,18 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             } catch (Exception) {
                 return false;
             }
+        }
+
+        private async Task<string> CreateRspAuth(DigestChallengeResponse response)
+        {
+	        var secretForUsername = await _usernameSecretProvider.GetSecretForUsernameAsync(response.Username);
+			var a1 = $"{response.Username}:{response.Realm}:{secretForUsername}";
+	        var a1Hash = a1.ToMD5Hash();
+
+	        var a2 = $":{response.Uri}";
+	        var a2Hash = a2.ToMD5Hash();
+
+	        return $"{a1Hash}:{response.Nonce}:{response.NonceCounter}:{response.ClientNonce}:{QopMode}:{a2Hash}".ToMD5Hash();
         }
     }
 }

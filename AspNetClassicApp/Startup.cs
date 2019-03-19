@@ -18,7 +18,7 @@ namespace AspNetClassicApp
                                            id = RouteParameter.Optional
                                        });
 
-            app.Use<DigestAuthenticationMiddleware>(DigestAuthenticationConfiguration.Create("VerySecure", "test-realm", 30),
+            app.Use<DigestAuthenticationMiddleware>(DigestAuthenticationConfiguration.Create("VerySecure", "test-realm", 30, true, 20),
                                                     new TrivialUsernameSecretProvider());
             app.UseWebApi(config);
         }
