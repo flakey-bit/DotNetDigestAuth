@@ -27,7 +27,9 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
                 return AuthenticateResult.NoResult();
             }
 
-            string validatedUsername = await _digestAuth.ValidateChallangeAsync(headerValue, Request.Method);
+            DigestChallengeResponse.TryParse(headerValue, out var challengeResponse);
+
+			string validatedUsername = await _digestAuth.ValidateChallangeAsync(challengeResponse, Request.Method);
 
             if (validatedUsername == null) {
                 return AuthenticateResult.NoResult();
@@ -36,6 +38,10 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
             var identity = new ClaimsIdentity(validatedUsername);
             identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
             var principal = new ClaimsPrincipal(identity);
+
+            if (_digestAuth.UseAuthenticationInfoHeader) {
+	            Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeader(challengeResponse);
+			}
 
             return AuthenticateResult.Success(new AuthenticationTicket(principal, new AuthenticationProperties(), Scheme.Name));
         }
