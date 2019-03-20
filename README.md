@@ -111,3 +111,14 @@ If you want something more sophisticated than that, you'll need to roll your own
 
 ## More info:
 For working examples, check out the AspNetClassicApp & AspNetCoreApp projects in the solution.
+
+### Build Status
+
+#### DigestAuthentication.Implementation
+[![Build Status](https://eddiewould.visualstudio.com/DigestAuthentication/_apis/build/status/DigestAuthentication.Implementation?branchName=master)](https://eddiewould.visualstudio.com/DigestAuthentication/_build/latest?definitionId=6&branchName=master)
+
+#### DigestAuthentication.AspNetCore
+[![Build Status](https://eddiewould.visualstudio.com/DigestAuthentication/_apis/build/status/DigestAuthentication.AspNetCore?branchName=master)](https://eddiewould.visualstudio.com/DigestAuthentication/_build/latest?definitionId=5&branchName=master)
+
+#### DigestAuthentication.AspNetClassic
+[![Build Status](https://eddiewould.visualstudio.com/DigestAuthentication/_apis/build/status/DigestAuthentication.AspNetClassic?branchName=master)](https://eddiewould.visualstudio.com/DigestAuthentication/_build/latest?definitionId=4&branchName=master)
