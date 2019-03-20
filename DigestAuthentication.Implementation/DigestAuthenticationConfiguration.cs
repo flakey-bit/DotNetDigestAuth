@@ -10,7 +10,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 		public long DeltaSecondsToNextNonce { get; }
 		public bool UseAuthenticationInfoHeader { get; }
 
-        private DigestAuthenticationConfiguration(string serverNonceSecret, string realm, long maxNonceAgeSeconds,  bool useAuthenticationInfoHeader = false, long deltaSecondsToNextNonce = 10) {
+        private DigestAuthenticationConfiguration(string serverNonceSecret, string realm, long maxNonceAgeSeconds, bool useAuthenticationInfoHeader = false, long deltaSecondsToNextNonce = 10) {
             if (string.IsNullOrEmpty(serverNonceSecret) || serverNonceSecret.Length < 5) {
                 throw new ArgumentException("Server nonce secret must be at least 5 characters long");
             }

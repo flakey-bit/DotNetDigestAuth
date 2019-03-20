@@ -34,7 +34,7 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
             identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
 
             if (_digestAuth.UseAuthenticationInfoHeader) {
-	            Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeader(challengeResponse);
+	            Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeaderAsync(challengeResponse);
 			}
 
 			return new AuthenticationTicket(identity, properties);

@@ -40,7 +40,7 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
             var principal = new ClaimsPrincipal(identity);
 
             if (_digestAuth.UseAuthenticationInfoHeader) {
-	            Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeader(challengeResponse);
+	            Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeaderAsync(challengeResponse);
 			}
 
             return AuthenticateResult.Success(new AuthenticationTicket(principal, new AuthenticationProperties(), Scheme.Name));
