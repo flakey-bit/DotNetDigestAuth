@@ -6,6 +6,5 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
     internal class DigestAuthenticationOptions : AuthenticationSchemeOptions
     {
         public DigestAuthenticationConfiguration Configuration;
-        public IUsernameSecretProvider UsernameSecretProvider;
     }
 }

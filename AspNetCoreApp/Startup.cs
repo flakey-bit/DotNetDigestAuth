@@ -17,9 +17,9 @@ namespace AspNetCoreApp
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+            services.AddScoped<IUsernameSecretProvider, TrivialUsernameSecretProvider>();
             services.AddAuthentication("Digest")
-                    .AddDigestAuthentication(DigestAuthenticationConfiguration.Create("VerySecret", "some-realm", 60, true, 20),
-                                             new TrivialUsernameSecretProvider());
+                    .AddDigestAuthentication(DigestAuthenticationConfiguration.Create("VerySecret", "some-realm", 60, true, 20));
             services.AddMvc();
         }
 

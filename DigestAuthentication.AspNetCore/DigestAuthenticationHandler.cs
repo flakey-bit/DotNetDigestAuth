@@ -11,15 +11,17 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
 {
     internal class DigestAuthenticationHandler : AuthenticationHandler<DigestAuthenticationOptions>
     {
+        private readonly IUsernameSecretProvider _usernameSecretProvider;
         private DigestAuthImplementation _digestAuth;
 
-        public DigestAuthenticationHandler(IOptionsMonitor<DigestAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
+        public DigestAuthenticationHandler(IOptionsMonitor<DigestAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IUsernameSecretProvider usernameSecretProvider)
             : base(options, logger, encoder, clock) {
+            _usernameSecretProvider = usernameSecretProvider;
         }
 
         protected override async Task InitializeHandlerAsync() {
             await base.InitializeHandlerAsync();
-            _digestAuth = new DigestAuthImplementation(Options.Configuration, Options.UsernameSecretProvider);
+            _digestAuth = new DigestAuthImplementation(Options.Configuration, _usernameSecretProvider);
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync() {
