@@ -17,9 +17,16 @@ namespace AspNetCoreApp
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
-            services.AddScoped<IUsernameSecretProvider, TrivialUsernameSecretProvider>();
+            // Example configuration providing an IUsernameSecretProvider (which returns the secret for a given username in plaintext)
+            // services.AddScoped<IUsernameSecretProvider, TrivialUsernameSecretProvider>();
+            // services.AddAuthentication("Digest")
+            //         .AddDigestAuthentication(DigestAuthenticationConfiguration.Create("VerySecret", "some-realm", 60, true, 20));
+
+            // Example configuration using IUsernameHashedSecretProvider (which returns the pre-computed MD5 hash of the secret "A1")
+            services.AddScoped<IUsernameHashedSecretProvider, TrivialUsernameHashedSecretProvider>();
             services.AddAuthentication("Digest")
                     .AddDigestAuthentication(DigestAuthenticationConfiguration.Create("VerySecret", "some-realm", 60, true, 20));
+
             services.AddMvc();
         }
 

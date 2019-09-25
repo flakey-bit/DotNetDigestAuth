@@ -18,8 +18,13 @@ namespace AspNetClassicApp
                                            id = RouteParameter.Optional
                                        });
 
+            // Example configuration providing an IUsernameSecretProvider (which returns the secret for a given username in plaintext)
+            // app.Use<DigestAuthenticationMiddleware>(DigestAuthenticationConfiguration.Create("VerySecure", "test-realm", 30, true, 20),
+            //                                         new TrivialUsernameSecretProvider());
+
+            // Example configuration using IUsernameHashedSecretProvider (which returns the pre-computed MD5 hash of the secret "A1")
             app.Use<DigestAuthenticationMiddleware>(DigestAuthenticationConfiguration.Create("VerySecure", "test-realm", 30, true, 20),
-                                                    new TrivialUsernameSecretProvider());
+                                                    new TrivialUsernameHashedSecretProvider());
             app.UseWebApi(config);
         }
     }

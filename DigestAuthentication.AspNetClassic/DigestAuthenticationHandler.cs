@@ -12,8 +12,8 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
     {
         private readonly DigestAuthImplementation _digestAuth;
 
-        public DigestAuthenticationHandler(DigestAuthenticationConfiguration config, IUsernameSecretProvider usernameSecretProvider) {
-            _digestAuth = new DigestAuthImplementation(config, usernameSecretProvider);
+        public DigestAuthenticationHandler(DigestAuthenticationConfiguration config, IUsernameHashedSecretProvider usernameHashedSecretProvider) {
+            _digestAuth = new DigestAuthImplementation(config, usernameHashedSecretProvider);
         }
 
         protected override async Task<AuthenticationTicket> AuthenticateCoreAsync() {

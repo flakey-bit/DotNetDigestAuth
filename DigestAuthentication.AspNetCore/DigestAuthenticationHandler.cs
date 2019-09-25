@@ -12,6 +12,8 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
     internal class DigestAuthenticationHandler : AuthenticationHandler<DigestAuthenticationOptions>
     {
         private readonly IUsernameSecretProvider _usernameSecretProvider;
+        private readonly IUsernameHashedSecretProvider _usernameHashedSecretProvider;
+
         private DigestAuthImplementation _digestAuth;
 
         public DigestAuthenticationHandler(IOptionsMonitor<DigestAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IUsernameSecretProvider usernameSecretProvider)
@@ -19,9 +21,20 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
             _usernameSecretProvider = usernameSecretProvider;
         }
 
+        public DigestAuthenticationHandler(IOptionsMonitor<DigestAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IUsernameHashedSecretProvider usernameHashedSecretProvider)
+            : base(options, logger, encoder, clock)
+        {
+            _usernameHashedSecretProvider = usernameHashedSecretProvider;
+        }
+
         protected override async Task InitializeHandlerAsync() {
             await base.InitializeHandlerAsync();
-            _digestAuth = new DigestAuthImplementation(Options.Configuration, _usernameSecretProvider);
+
+            if (_usernameHashedSecretProvider != null) {
+                _digestAuth = new DigestAuthImplementation(Options.Configuration, _usernameHashedSecretProvider);
+            } else {
+                _digestAuth = new DigestAuthImplementation(Options.Configuration, new UsernameHashedSecretComputer(_usernameSecretProvider));
+            }
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync() {

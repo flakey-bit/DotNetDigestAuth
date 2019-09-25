@@ -217,6 +217,7 @@
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="TrivialUsernameHashedSecretProvider.cs" />
     <Compile Include="TrivialUsernameSecretProvider.cs" />
   </ItemGroup>
   <ItemGroup>
