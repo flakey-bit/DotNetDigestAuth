@@ -34,7 +34,11 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             DeltaSecondsToNextNonce = deltaSecondsToNextNonce;
         }
 
-        public static DigestAuthenticationConfiguration Create(string serverNonceSecret, string realm, long maxNonceAgeSeconds = 3600, bool useAuthenticationInfoHeader = false, long deltaSecondsToNextNonce = 10) {
+        public static DigestAuthenticationConfiguration Create(string serverNonceSecret,
+                                                               string realm,
+                                                               long maxNonceAgeSeconds = 3600,
+                                                               bool useAuthenticationInfoHeader = false,
+                                                               long deltaSecondsToNextNonce = 10) {
             return new DigestAuthenticationConfiguration(serverNonceSecret, realm, maxNonceAgeSeconds, useAuthenticationInfoHeader, deltaSecondsToNextNonce);
         }
     }

@@ -9,33 +9,34 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 {
     internal class DigestAuthImplementation
     {
-        public static string AuthenticateHeaderName = "WWW-Authenticate";
-        public static string AuthorizationHeaderName = "Authorization";
-        public static string AuthenticationInfoHeaderName = "Authentication-Info";
-        public static string DigestAuthenticationClaimName = "DIGEST_AUTHENTICATION_NAME";
+        public const string AuthenticateHeaderName = "WWW-Authenticate";
+        public const string AuthorizationHeaderName = "Authorization";
+        public const string AuthenticationInfoHeaderName = "Authentication-Info";
+        public const string DigestAuthenticationClaimName = "DIGEST_AUTHENTICATION_NAME";
 
-        private static string QopMode = "auth";
-        private static string NonceTimestampFormat = "yyyy-MM-dd HH:mm:ss.ffffffZ";
+        private const string QopMode = "auth";
+        private const string NonceTimestampFormat = "yyyy-MM-dd HH:mm:ss.ffffffZ";
+
         private readonly DigestAuthenticationConfiguration _config;
-        private readonly IUsernameSecretProvider _usernameSecretProvider;
+        private readonly IUsernameHashedSecretProvider _usernameHashedSecretProvider;
 
-        public DigestAuthImplementation(DigestAuthenticationConfiguration config, IUsernameSecretProvider usernameSecretProvider) {
+        public DigestAuthImplementation(DigestAuthenticationConfiguration config, IUsernameHashedSecretProvider usernameHashedSecretProvider)
+        {
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
             }
 
-            if (usernameSecretProvider == null) {
-                throw new ArgumentNullException(nameof(usernameSecretProvider));
+            if (usernameHashedSecretProvider == null) {
+                throw new ArgumentNullException(nameof(usernameHashedSecretProvider));
             }
 
             _config = config;
-            _usernameSecretProvider = usernameSecretProvider;
+            _usernameHashedSecretProvider = usernameHashedSecretProvider;
         }
 
         public bool UseAuthenticationInfoHeader => _config.UseAuthenticationInfoHeader;
 
         public string BuildChallengeHeader() {
-
             var parts = new (string Key, string Value, bool ShouldQuote)[] {
                 ("realm", _config.Realm, true),
                 ("nonce", CreateNonce(DateTime.UtcNow), true),
@@ -53,9 +54,11 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 			var delta = timestamp - DateTime.UtcNow;
 			var deltaSeconds = Math.Abs(delta.TotalSeconds);
 
+		    string a1Hash = await _usernameHashedSecretProvider.GetA1Md5HashForUsernameAsync(response.Username, _config.Realm);
+
 			List<ValueTuple<string, string, bool>> parts = new List<ValueTuple<string, string, bool>> {
 				("qop", QopMode, true),
-				("rspauth", await CreateRspAuth(response), true),
+				("rspauth", CreateRspAuth(response, a1Hash), true),
 				("cnonce", response.ClientNonce, true),
 				("nc", response.NonceCounter, false)
 			};
@@ -66,14 +69,6 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 
 			return String.Join(", ", parts.Select(FormatHeaderComponent));
 		}
-
-        private string FormatHeaderComponent((string Key, string Value, bool ShouldQuote) component) {
-            if (component.ShouldQuote) {
-                return $"{component.Key}=\"{component.Value}\"";
-            }
-
-            return $"{component.Key}={component.Value}";
-        }
 		
         public async Task<string> ValidateChallangeAsync(DigestChallengeResponse challengeResponse, string requestMethod) {
             if (challengeResponse == null) {
@@ -84,13 +79,13 @@ namespace FlakeyBit.DigestAuthentication.Implementation
                 return null;
             }
 
-            var secretForUsername = await _usernameSecretProvider.GetSecretForUsernameAsync(challengeResponse.Username);
-            if (secretForUsername == null) {
+            var a1Hash = await _usernameHashedSecretProvider.GetA1Md5HashForUsernameAsync(challengeResponse.Username, _config.Realm);
+            if (a1Hash == null) {
                 // Username not recognised
                 return null;
             }
 
-            var expectedHash = GenerateExpectedHash(challengeResponse, requestMethod, secretForUsername);
+            var expectedHash = GenerateExpectedHash(challengeResponse, requestMethod, a1Hash);
 
             if (expectedHash == challengeResponse.Response) {
                 return challengeResponse.Username;
@@ -99,22 +94,24 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             return null;
         }
 
-        private string GenerateExpectedHash(DigestChallengeResponse response, string requestMethod, string secretForUsername) {
-            var a1 = $"{response.Username}:{response.Realm}:{secretForUsername}";
-            var a1Hash = a1.ToMD5Hash();
+        private string FormatHeaderComponent((string Key, string Value, bool ShouldQuote) component) {
+            if (component.ShouldQuote)
+            {
+                return $"{component.Key}=\"{component.Value}\"";
+            }
 
+            return $"{component.Key}={component.Value}";
+        }
+
+        private string GenerateExpectedHash(DigestChallengeResponse response, string requestMethod, string a1Hash) {
             var a2 = $"{requestMethod}:{response.Uri}";
             var a2Hash = a2.ToMD5Hash();
 
             return $"{a1Hash}:{response.Nonce}:{response.NonceCounter}:{response.ClientNonce}:{QopMode}:{a2Hash}".ToMD5Hash();
         }
 
-        private async Task<string> CreateRspAuth(DigestChallengeResponse response)
+        private string CreateRspAuth(DigestChallengeResponse response, string a1Hash)
         {
-            var secretForUsername = await _usernameSecretProvider.GetSecretForUsernameAsync(response.Username);
-            var a1 = $"{response.Username}:{response.Realm}:{secretForUsername}";
-            var a1Hash = a1.ToMD5Hash();
-
             var a2 = $":{response.Uri}";
             var a2Hash = a2.ToMD5Hash();
 
@@ -148,8 +145,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             }
         }
 
-        private static DateTimeOffset ParseTimestamp(string timestampStr)
-        {
+        private static DateTimeOffset ParseTimestamp(string timestampStr) {
             return DateTimeOffset.ParseExact(timestampStr, NonceTimestampFormat, CultureInfo.InvariantCulture);
         }
     }
