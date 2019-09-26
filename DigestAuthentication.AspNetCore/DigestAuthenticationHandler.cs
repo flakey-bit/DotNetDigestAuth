@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -30,10 +31,12 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
         protected override async Task InitializeHandlerAsync() {
             await base.InitializeHandlerAsync();
 
+            var clock = new SystemClockProxy(Clock);
+
             if (_usernameHashedSecretProvider != null) {
-                _digestAuth = new DigestAuthImplementation(Options.Configuration, _usernameHashedSecretProvider);
+                _digestAuth = new DigestAuthImplementation(Options.Configuration, _usernameHashedSecretProvider, clock);
             } else {
-                _digestAuth = new DigestAuthImplementation(Options.Configuration, new UsernameHashedSecretComputer(_usernameSecretProvider));
+                _digestAuth = new DigestAuthImplementation(Options.Configuration, new UsernameHashedSecretComputer(_usernameSecretProvider), clock);
             }
         }
 
@@ -42,7 +45,9 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
                 return AuthenticateResult.NoResult();
             }
 
-            DigestChallengeResponse.TryParse(headerValue, out var challengeResponse);
+            if (!DigestChallengeResponse.TryParse(headerValue, out var challengeResponse)) {
+                return AuthenticateResult.NoResult();
+            }
 
 			string validatedUsername = await _digestAuth.ValidateChallangeAsync(challengeResponse, Request.Method);
 
@@ -68,5 +73,16 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
                 Response.Headers[DigestAuthImplementation.AuthenticateHeaderName] = _digestAuth.BuildChallengeHeader();
             }
         }
+    }
+
+    internal class SystemClockProxy : IClock
+    {
+        private readonly ISystemClock _systemClock;
+
+        public SystemClockProxy(ISystemClock systemClock) {
+            _systemClock = systemClock;
+        }
+
+        public DateTime UtcNow => _systemClock.UtcNow.UtcDateTime;
     }
 }

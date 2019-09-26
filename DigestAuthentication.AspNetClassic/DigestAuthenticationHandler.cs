@@ -12,8 +12,8 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
     {
         private readonly DigestAuthImplementation _digestAuth;
 
-        public DigestAuthenticationHandler(DigestAuthenticationConfiguration config, IUsernameHashedSecretProvider usernameHashedSecretProvider) {
-            _digestAuth = new DigestAuthImplementation(config, usernameHashedSecretProvider);
+        public DigestAuthenticationHandler(DigestAuthenticationConfiguration config, IUsernameHashedSecretProvider usernameHashedSecretProvider, IClock clock) {
+            _digestAuth = new DigestAuthImplementation(config, usernameHashedSecretProvider, clock);
         }
 
         protected override async Task<AuthenticationTicket> AuthenticateCoreAsync() {
@@ -23,7 +23,10 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
                 return new AuthenticationTicket(null, properties);
             }
 
-            DigestChallengeResponse.TryParse(headerValue.FirstOrDefault(), out var challengeResponse);
+            if (!DigestChallengeResponse.TryParse(headerValue.FirstOrDefault(), out var challengeResponse)) {
+                return new AuthenticationTicket(null, properties);
+            }
+
 			string validatedUsername = await _digestAuth.ValidateChallangeAsync(challengeResponse, Request.Method);
 
 			if (validatedUsername == null) {

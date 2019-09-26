@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace AspNetCoreApp
 {
@@ -16,6 +9,9 @@ namespace AspNetCoreApp
             BuildWebHost(args).Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) => WebHost.CreateDefaultBuilder(args).UseStartup<Startup>().Build();
+        public static IWebHost BuildWebHost(string[] args) => CreateWebHostBuilder(args).Build();
+
+        // CreateWebHostBuilder is needed to support integration testing
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) => WebHost.CreateDefaultBuilder(args).UseStartup<Startup>();
     }
 }

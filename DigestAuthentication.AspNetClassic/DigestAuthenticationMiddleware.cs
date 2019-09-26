@@ -25,10 +25,10 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
 
         protected override AuthenticationHandler<DigestAuthenticationOptions> CreateHandler() {
             if (_usernameHashedSecretProvider != null) {
-                return new DigestAuthenticationHandler(_config, _usernameHashedSecretProvider);
+                return new DigestAuthenticationHandler(_config, _usernameHashedSecretProvider, new Clock());
             }
 
-            return new DigestAuthenticationHandler(_config, new UsernameHashedSecretComputer(_usernameSecretProvider));
+            return new DigestAuthenticationHandler(_config, new UsernameHashedSecretComputer(_usernameSecretProvider), new Clock());
         }
     }
 }
