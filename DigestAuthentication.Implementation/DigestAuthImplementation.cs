@@ -19,8 +19,9 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 
         private readonly DigestAuthenticationConfiguration _config;
         private readonly IUsernameHashedSecretProvider _usernameHashedSecretProvider;
+        private readonly IClock _clock;
 
-        public DigestAuthImplementation(DigestAuthenticationConfiguration config, IUsernameHashedSecretProvider usernameHashedSecretProvider)
+        public DigestAuthImplementation(DigestAuthenticationConfiguration config, IUsernameHashedSecretProvider usernameHashedSecretProvider, IClock clock)
         {
             if (config == null) {
                 throw new ArgumentNullException(nameof(config));
@@ -30,8 +31,13 @@ namespace FlakeyBit.DigestAuthentication.Implementation
                 throw new ArgumentNullException(nameof(usernameHashedSecretProvider));
             }
 
+            if (clock == null) {
+                throw new ArgumentNullException(nameof(clock));
+            }
+
             _config = config;
             _usernameHashedSecretProvider = usernameHashedSecretProvider;
+            _clock = clock;
         }
 
         public bool UseAuthenticationInfoHeader => _config.UseAuthenticationInfoHeader;
@@ -39,7 +45,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
         public string BuildChallengeHeader() {
             var parts = new (string Key, string Value, bool ShouldQuote)[] {
                 ("realm", _config.Realm, true),
-                ("nonce", CreateNonce(DateTime.UtcNow), true),
+                ("nonce", CreateNonce(_clock.UtcNow), true),
                 ("qop", QopMode, true),
                 ("algorithm", "MD5", false)
             };
@@ -51,7 +57,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 			var timestampStr = response.Nonce.Substring(0, NonceTimestampFormat.Length);
 			var timestamp = ParseTimestamp(timestampStr);
 
-			var delta = timestamp - DateTime.UtcNow;
+			var delta = timestamp - _clock.UtcNow;
 			var deltaSeconds = Math.Abs(delta.TotalSeconds);
 
 		    string a1Hash = await _usernameHashedSecretProvider.GetA1Md5HashForUsernameAsync(response.Username, _config.Realm);
@@ -64,7 +70,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 			};
 
 			if (Math.Abs(deltaSeconds - _config.MaxNonceAgeSeconds) < _config.DeltaSecondsToNextNonce) {
-				parts = parts.Prepend(("nextnonce", CreateNonce(DateTime.UtcNow), true)).ToList();
+				parts = parts.Prepend(("nextnonce", CreateNonce(_clock.UtcNow), true)).ToList();
 			}
 
 			return String.Join(", ", parts.Select(FormatHeaderComponent));
@@ -72,7 +78,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 		
         public async Task<string> ValidateChallangeAsync(DigestChallengeResponse challengeResponse, string requestMethod) {
             if (challengeResponse == null) {
-	            return null;
+	            throw new ArgumentNullException(nameof(challengeResponse));
             }
 
             if (!ValidateNonce(challengeResponse)) {
@@ -133,7 +139,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
                 var timestampStr = challengeResponse.Nonce.Substring(0, NonceTimestampFormat.Length);
                 var timestamp = ParseTimestamp(timestampStr);
 
-                var delta = timestamp - DateTime.UtcNow;
+                var delta = timestamp - _clock.UtcNow;
 
 				if (Math.Abs(delta.TotalSeconds) > _config.MaxNonceAgeSeconds) {
                     return false;
