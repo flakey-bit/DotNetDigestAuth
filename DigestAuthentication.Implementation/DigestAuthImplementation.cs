@@ -126,7 +126,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 
         private string CreateNonce(DateTime timestamp) {
             var builder = new StringBuilder();
-            var timestampStr = timestamp.ToString(NonceTimestampFormat);
+            var timestampStr = timestamp.ToString(NonceTimestampFormat, CultureInfo.InvariantCulture);
             builder.Append(timestampStr);
             builder.Append(" ");
             builder.Append($"{timestampStr}:{_config.ServerNonceSecret}".ToMD5Hash());
