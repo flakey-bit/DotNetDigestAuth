@@ -1,7 +1,9 @@
 # DotNetDigestAuth
 Implementation of Digest Authentication for ASP.NET Core (AuthenticationHandler) &amp; ASP.NET (OWIN Middleware).
 
-Supports: ASP.NET running on .NET Framework 4.6.1+ or ASP.NET Core 2.0+ (i.e. NET Standard 2.0+)
+Supports: 
+* ASP.NET Core 2.0+ (i.e. NET Standard 2.0+). This includes right the way up to the current .NET 5.0 (`net5.0`)
+* ASP.NET running on .NET Framework 4.6.1+ (my condolences)
 
 ## General:
 - Depending on the usage scenario, you have the option of storing the user secrets (passwords) in plaintext or only storing the hashes of the secrets (recommended). 
@@ -62,7 +64,7 @@ DigestAuthenticationConfiguration.Create("SomeVerySecureServerNonceSecret", "Som
 
 ## Usage in ASP.NET Core:
 
-- You'll want to reference the NuGet package & namespace `FlakeyBit.DigestAuthentication.AspNetCore`.
+- You'll want to install the NuGet package & reference the namespace `FlakeyBit.DigestAuthentication.AspNetCore`.
 
 In your web host startup:
 
@@ -74,7 +76,7 @@ public class Startup
             services.AddScoped<IUsernameHashedSecretProvider, ExampleUsernameHashedSecretProvider>();
             services.AddAuthentication("Digest")
                     .AddDigestAuthentication(DigestAuthenticationConfiguration.Create("SomeVerySecureServerNonceSecret", "SomeDescriptiveRealmName", 30));
-            services.AddMvc();
+            // ... Configure more services
         }
 }
 ```
