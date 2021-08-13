@@ -1,4 +1,4 @@
-﻿using System.Web.Http;
+using System.Web.Http;
 using FlakeyBit.DigestAuthentication.AspNetClassic;
 
 namespace AspNetClassicApp.Controllers

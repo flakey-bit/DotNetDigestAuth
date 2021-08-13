@@ -1,0 +1,3 @@
+*.cs		text=auto
+*.csproj	text=auto
+*.sln		text=auto
