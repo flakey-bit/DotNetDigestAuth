@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace FlakeyBit.DigestAuthentication.Implementation
 {
@@ -7,8 +7,8 @@ namespace FlakeyBit.DigestAuthentication.Implementation
         public string ServerNonceSecret { get; }
         public string Realm { get; }
         public long MaxNonceAgeSeconds { get; }
-		public long DeltaSecondsToNextNonce { get; }
-		public bool UseAuthenticationInfoHeader { get; }
+        public long DeltaSecondsToNextNonce { get; }
+        public bool UseAuthenticationInfoHeader { get; }
 
         private DigestAuthenticationConfiguration(string serverNonceSecret, string realm, long maxNonceAgeSeconds, bool useAuthenticationInfoHeader = false, long deltaSecondsToNextNonce = 10) {
             if (string.IsNullOrEmpty(serverNonceSecret) || serverNonceSecret.Length < 5) {
@@ -24,7 +24,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             }
 
             if (deltaSecondsToNextNonce < 0) {
-				throw new ArgumentException("Delta Seconds to next Nonce must be positive");
+                throw new ArgumentException("Delta Seconds to next Nonce must be positive");
             }
 
             ServerNonceSecret = serverNonceSecret;

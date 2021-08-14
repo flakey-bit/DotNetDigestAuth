@@ -1,4 +1,4 @@
-﻿namespace FlakeyBit.DigestAuthentication.Implementation
+namespace FlakeyBit.DigestAuthentication.Implementation
 {
     public static class DigestAuthentication
     {

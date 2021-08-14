@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -49,7 +49,7 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
                 return AuthenticateResult.NoResult();
             }
 
-			string validatedUsername = await _digestAuth.ValidateChallangeAsync(challengeResponse, Request.Method);
+            string validatedUsername = await _digestAuth.ValidateChallangeAsync(challengeResponse, Request.Method);
 
             if (validatedUsername == null) {
                 return AuthenticateResult.NoResult();
@@ -60,8 +60,8 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
             var principal = new ClaimsPrincipal(identity);
 
             if (_digestAuth.UseAuthenticationInfoHeader) {
-	            Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeaderAsync(challengeResponse);
-			}
+                Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeaderAsync(challengeResponse);
+            }
 
             return AuthenticateResult.Success(new AuthenticationTicket(principal, new AuthenticationProperties(), Scheme.Name));
         }
