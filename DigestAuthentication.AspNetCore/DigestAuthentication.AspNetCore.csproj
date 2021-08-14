@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FlakeyBit.DigestAuthentication.Implementation" Version="2020.8.25.3" />
+    <PackageReference Include="FlakeyBit.DigestAuthentication.Implementation" Version="2021.8.14.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
   </ItemGroup>
