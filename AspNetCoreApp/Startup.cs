@@ -1,4 +1,4 @@
-﻿using FlakeyBit.DigestAuthentication.AspNetCore;
+using FlakeyBit.DigestAuthentication.AspNetCore;
 using FlakeyBit.DigestAuthentication.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

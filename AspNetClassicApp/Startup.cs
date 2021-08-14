@@ -1,4 +1,4 @@
-﻿using System.Web.Http;
+using System.Web.Http;
 using FlakeyBit.DigestAuthentication.AspNetClassic;
 using FlakeyBit.DigestAuthentication.Implementation;
 using Microsoft.Owin;

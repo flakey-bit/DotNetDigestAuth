@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -53,32 +53,32 @@ namespace FlakeyBit.DigestAuthentication.Implementation
             return "Digest " + String.Join(", ", parts.Select(FormatHeaderComponent));
         }
 
-		public async Task<string> BuildAuthInfoHeaderAsync(DigestChallengeResponse response) {
-			var timestampStr = response.Nonce.Substring(0, NonceTimestampFormat.Length);
-			var timestamp = ParseTimestamp(timestampStr);
+        public async Task<string> BuildAuthInfoHeaderAsync(DigestChallengeResponse response) {
+            var timestampStr = response.Nonce.Substring(0, NonceTimestampFormat.Length);
+            var timestamp = ParseTimestamp(timestampStr);
 
-			var delta = timestamp - _clock.UtcNow;
-			var deltaSeconds = Math.Abs(delta.TotalSeconds);
+            var delta = timestamp - _clock.UtcNow;
+            var deltaSeconds = Math.Abs(delta.TotalSeconds);
 
-		    string a1Hash = await _usernameHashedSecretProvider.GetA1Md5HashForUsernameAsync(response.Username, _config.Realm);
+            string a1Hash = await _usernameHashedSecretProvider.GetA1Md5HashForUsernameAsync(response.Username, _config.Realm);
 
-			List<ValueTuple<string, string, bool>> parts = new List<ValueTuple<string, string, bool>> {
-				("qop", QopMode, true),
-				("rspauth", CreateRspAuth(response, a1Hash), true),
-				("cnonce", response.ClientNonce, true),
-				("nc", response.NonceCounter, false)
-			};
+            List<ValueTuple<string, string, bool>> parts = new List<ValueTuple<string, string, bool>> {
+                ("qop", QopMode, true),
+                ("rspauth", CreateRspAuth(response, a1Hash), true),
+                ("cnonce", response.ClientNonce, true),
+                ("nc", response.NonceCounter, false)
+            };
 
-			if (Math.Abs(deltaSeconds - _config.MaxNonceAgeSeconds) < _config.DeltaSecondsToNextNonce) {
-				parts = parts.Prepend(("nextnonce", CreateNonce(_clock.UtcNow), true)).ToList();
-			}
+            if (Math.Abs(deltaSeconds - _config.MaxNonceAgeSeconds) < _config.DeltaSecondsToNextNonce) {
+                parts = parts.Prepend(("nextnonce", CreateNonce(_clock.UtcNow), true)).ToList();
+            }
 
-			return String.Join(", ", parts.Select(FormatHeaderComponent));
-		}
-		
+            return String.Join(", ", parts.Select(FormatHeaderComponent));
+        }
+        
         public async Task<string> ValidateChallangeAsync(DigestChallengeResponse challengeResponse, string requestMethod) {
             if (challengeResponse == null) {
-	            throw new ArgumentNullException(nameof(challengeResponse));
+                throw new ArgumentNullException(nameof(challengeResponse));
             }
 
             if (!ValidateNonce(challengeResponse)) {
@@ -141,7 +141,7 @@ namespace FlakeyBit.DigestAuthentication.Implementation
 
                 var delta = timestamp - _clock.UtcNow;
 
-				if (Math.Abs(delta.TotalSeconds) > _config.MaxNonceAgeSeconds) {
+                if (Math.Abs(delta.TotalSeconds) > _config.MaxNonceAgeSeconds) {
                     return false;
                 }
 

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -27,9 +27,9 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
                 return new AuthenticationTicket(null, properties);
             }
 
-			string validatedUsername = await _digestAuth.ValidateChallangeAsync(challengeResponse, Request.Method);
+            string validatedUsername = await _digestAuth.ValidateChallangeAsync(challengeResponse, Request.Method);
 
-			if (validatedUsername == null) {
+            if (validatedUsername == null) {
                 return new AuthenticationTicket(null, properties);
             }
 
@@ -37,10 +37,10 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
             identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
 
             if (_digestAuth.UseAuthenticationInfoHeader) {
-	            Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeaderAsync(challengeResponse);
-			}
+                Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeaderAsync(challengeResponse);
+            }
 
-			return new AuthenticationTicket(identity, properties);
+            return new AuthenticationTicket(identity, properties);
         }
 
         protected override async Task ApplyResponseChallengeAsync() {

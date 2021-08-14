@@ -1,4 +1,4 @@
-﻿using Microsoft.Owin.Security;
+using Microsoft.Owin.Security;
 
 namespace FlakeyBit.DigestAuthentication.AspNetClassic
 {

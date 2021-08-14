@@ -1,4 +1,4 @@
-﻿using FlakeyBit.DigestAuthentication.Implementation;
+using FlakeyBit.DigestAuthentication.Implementation;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Infrastructure;
 
