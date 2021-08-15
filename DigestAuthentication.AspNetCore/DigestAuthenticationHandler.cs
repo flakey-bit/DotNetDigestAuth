@@ -55,7 +55,7 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
                 return AuthenticateResult.NoResult();
             }
 
-            var identity = new ClaimsIdentity(validatedUsername);
+            var identity = new ClaimsIdentity(Scheme.Name);
             identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
             var principal = new ClaimsPrincipal(identity);
 
