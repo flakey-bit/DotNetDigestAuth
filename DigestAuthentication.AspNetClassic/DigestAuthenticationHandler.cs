@@ -33,7 +33,7 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
                 return new AuthenticationTicket(null, properties);
             }
 
-            var identity = new ClaimsIdentity(validatedUsername);
+            var identity = new ClaimsIdentity("Digest");
             identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
 
             if (_digestAuth.UseAuthenticationInfoHeader) {
