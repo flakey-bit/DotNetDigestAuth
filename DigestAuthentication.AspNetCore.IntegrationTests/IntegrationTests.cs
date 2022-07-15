@@ -12,6 +12,7 @@ using Moq;
 using NUnit.Framework;
 using FlakeyBit.DigestAuthentication.Implementation;
 using DigestAuthenticationUtils = FlakeyBit.DigestAuthentication.Implementation.DigestAuthentication;
+using FlakeyBit.DigestAuthentication.AspNetCore;
 
 namespace DigestAuthentication.AspNetCore.IntegrationTests
 {
@@ -82,6 +83,57 @@ namespace DigestAuthentication.AspNetCore.IntegrationTests
             Assert.That(content, Is.EqualTo("Hello Core!"));
         }
 
+        [Test]
+        public async Task DigestValidityDeterminedByMaxNonceAge()
+        {
+            DateTimeOffset currentTime = _startTime;
+            _systemClockMock.Setup(c => c.UtcNow)
+            .Returns(() => currentTime);
+
+            var client = _webAppFactory.CreateClient();
+            const string username = "eddie";
+            const string password = "starwars123";
+            const string realm = "some-realm";
+            const string nonce = "2019-09-26 00:21:23.000000Z 1f36bf2dae9ddb750a644c9994ffffe1";
+            const string nonceCounter = "1";
+            const string clientNonce = "1";
+
+            var expectedHash = GenerateExpectedHash("GET", RequestUri, username, password, realm, nonce, nonceCounter, clientNonce);
+
+            var digestHeaderParts = new[] {
+                $"username=\"{username}\"",
+                $"realm=\"{realm}\"",
+                $"nonce=\"{nonce}\"",
+                $"uri=\"{RequestUri}\"",
+                $"nc={nonceCounter}",
+                $"cnonce=\"{clientNonce}\"",
+                $"response=\"{expectedHash}\""
+            };
+
+            var digestHeader = string.Join(",", digestHeaderParts);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Digest", digestHeader);
+
+            // Make initial request at T=0
+            currentTime = _startTime;
+            var response = await client.GetAsync(RequestUri);
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+
+            // T+30, make another request
+            currentTime = _startTime.AddSeconds(30);
+            response = await client.GetAsync(RequestUri);
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+
+            // T+60, make another request
+            currentTime = _startTime.AddSeconds(seconds: 60);
+            response = await client.GetAsync(RequestUri);
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+
+            // T+61, make another request (max nonce age exceeded)
+            currentTime = _startTime.AddSeconds(seconds: 61);
+            response = await client.GetAsync(RequestUri);
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+        }
+
         [TearDown]
         public void TearDown()
         {
@@ -108,15 +160,21 @@ namespace DigestAuthentication.AspNetCore.IntegrationTests
     public class WebAppFactory : WebApplicationFactory<Startup>
     {
         private readonly ISystemClock _systemClock;
+        private readonly Action<IServiceCollection> _configureServices;
 
-        public WebAppFactory(ISystemClock systemClock) {
+        public WebAppFactory(ISystemClock systemClock, Action<IServiceCollection> configureServices=null) {
             _systemClock = systemClock;
+            _configureServices = configureServices;
         }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder) {
             builder.ConfigureServices(services => {
                 services.AddSingleton(_systemClock);
             });
+
+            if (_configureServices != null) {
+                builder.ConfigureServices(_configureServices);
+            }
 
             base.ConfigureWebHost(builder);
         }
