@@ -17,6 +17,7 @@
     <RepositoryUrl>https://github.com/flakey-bit/DotNetDigestAuth</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Digest Authentication Asp.NET</PackageTags>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
