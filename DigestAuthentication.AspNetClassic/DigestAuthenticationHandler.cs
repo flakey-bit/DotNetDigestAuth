@@ -33,14 +33,23 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
                 return new AuthenticationTicket(null, properties);
             }
 
-            var identity = new ClaimsIdentity("Digest");
-            identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
+            ClaimsIdentity identity = CreateIdentityFromValidatedUserName(validatedUsername);
 
             if (_digestAuth.UseAuthenticationInfoHeader) {
                 Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeaderAsync(challengeResponse);
             }
 
             return new AuthenticationTicket(identity, properties);
+        }
+
+        internal ClaimsIdentity CreateIdentityFromValidatedUserName(string validatedUsername)
+        {
+            var identity = new ClaimsIdentity("Digest");
+            identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
+
+            //Remember to add the ClaimsIdentity::DefaultNameClaimType to allow ClaimsIdentity to have a name #24
+            identity.AddClaim(new Claim(ClaimsIdentity.DefaultNameClaimType, validatedUsername));
+            return identity;
         }
 
         protected override async Task ApplyResponseChallengeAsync() {

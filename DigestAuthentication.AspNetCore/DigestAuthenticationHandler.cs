@@ -55,8 +55,7 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
                 return AuthenticateResult.NoResult();
             }
 
-            var identity = new ClaimsIdentity(Scheme.Name);
-            identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
+            ClaimsIdentity identity = CreateIdentityFromValidatedUserName(validatedUsername, Scheme.Name);
             var principal = new ClaimsPrincipal(identity);
 
             if (_digestAuth.UseAuthenticationInfoHeader) {
@@ -64,6 +63,16 @@ namespace FlakeyBit.DigestAuthentication.AspNetCore
             }
 
             return AuthenticateResult.Success(new AuthenticationTicket(principal, new AuthenticationProperties(), Scheme.Name));
+        }
+
+        internal ClaimsIdentity CreateIdentityFromValidatedUserName(string validatedUsername, string schemeName)
+        {
+            var identity = new ClaimsIdentity(schemeName);
+            identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
+
+            //Remember to add the ClaimsIdentity::DefaultNameClaimType to allow ClaimsIdentity to have a name #24
+            identity.AddClaim(new Claim(ClaimsIdentity.DefaultNameClaimType, validatedUsername));
+            return identity;
         }
 
         protected override async Task HandleChallengeAsync(AuthenticationProperties properties) {
