@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FlakeyBit.DigestAuthentication.Implementation" Version="2021.8.14.1" />
+    <PackageReference Include="FlakeyBit.DigestAuthentication.Implementation" Version="2024.3.19.2" />
   </ItemGroup>
 
 </Project>

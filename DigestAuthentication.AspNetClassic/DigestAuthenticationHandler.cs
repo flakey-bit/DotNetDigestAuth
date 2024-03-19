@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Net;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using FlakeyBit.DigestAuthentication.Implementation;
 using Microsoft.Owin.Security;
@@ -33,8 +32,7 @@ namespace FlakeyBit.DigestAuthentication.AspNetClassic
                 return new AuthenticationTicket(null, properties);
             }
 
-            var identity = new ClaimsIdentity("Digest");
-            identity.AddClaim(new Claim(DigestAuthImplementation.DigestAuthenticationClaimName, validatedUsername));
+            var identity = IdentityHelper.CreateIdentityForUsername(validatedUsername);
 
             if (_digestAuth.UseAuthenticationInfoHeader) {
                 Response.Headers[DigestAuthImplementation.AuthenticationInfoHeaderName] = await _digestAuth.BuildAuthInfoHeaderAsync(challengeResponse);
